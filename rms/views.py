@@ -225,9 +225,9 @@ def openId(request, Rid):
 	y1.reverse()
 	y2.reverse()
 
-	print(x1)
-	print(y1)
-	print(y2)
+	# print(x1)
+	# print(y1)
+	# print(y2)
 
 	if sitedtls.Capacity=='2HP DC':
 		volt = 220
