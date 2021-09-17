@@ -216,7 +216,7 @@ def openId(request, Rid):
 	y1 = []
 	y2 = []
 
-	chartdata = BHData.objects.filter(CID_No=Rid)[:30]
+	chartdata = BHData.objects.filter(CID_No=Rid).exclude(DayEnergy=0)[:30]
 	for x in chartdata:
 		x1.append(str((x.Date).strftime('%d-%m-%Y')))
 		y1.append(x.DayEnergy)
@@ -224,6 +224,10 @@ def openId(request, Rid):
 	x1.reverse()
 	y1.reverse()
 	y2.reverse()
+
+	print(x1)
+	print(y1)
+	print(y2)
 
 	if sitedtls.Capacity=='2HP DC':
 		volt = 220
@@ -243,7 +247,7 @@ def openId(request, Rid):
 	ctime = now.strftime("%H:%M:%S")
 	parts = ctime.split(":")
 	ctVal = int(parts[0])*(60*60) + int(parts[1])*60 + int(parts[2])
-	
+
 	h1 = homeid.objects.get(CID_No=Rid)
 	dt = random.randint(0, 5)
 	# dt=0
@@ -337,14 +341,15 @@ def openId(request, Rid):
 	y3 = []
 	y4 = []
 
-	chartdata1 = BHInstData.objects.filter(CID_No=Rid)
+
+	chartdata1 = BHInstData.objects.filter(CID_No=Rid, Date=date.today())
 	for x in chartdata1:
 		x2.append(str((x.Time).strftime('%H:%M')))
 		y3.append((x.Power)*1000)
 		y4.append(x.LPD)
 
 	try:
-		lv = BHInstData.objects.filter(CID_No=Rid).latest('Date', 'Time', 'Voltage', 'Current', 'LPD')
+		lv = BHInstData.objects.filter(CID_No=Rid, Date=date.today()).latest('Date', 'Time', 'Voltage', 'Current', 'LPD')
 		ldate = lv.Date
 		ltime = lv.Time
 		volt = int(lv.Voltage)
@@ -352,6 +357,9 @@ def openId(request, Rid):
 		powr = lv.Power
 		lph = int(lv.LPD)
 		runst = lv.RunStatus
+		if h1.eTime<ctVal:
+			lv.RunStatus = False
+			runst = lv.RunStatus
 		if runst==True:
 			runst = 'Running'
 		else:
@@ -386,7 +394,7 @@ def search(request):
 		y1 = []
 		y2 = []
 
-		chartdata = BHData.objects.filter(CID_No=Rid)[:30]
+		chartdata = BHData.objects.filter(CID_No=Rid).exclude(DayEnergy=0)[:30]
 		for x in chartdata:
 			x1.append(str((x.Date).strftime('%d-%m-%Y')))
 			y1.append(x.DayEnergy)
@@ -508,14 +516,14 @@ def search(request):
 		y3 = []
 		y4 = []
 
-		chartdata1 = BHInstData.objects.filter(CID_No=Rid)
+		chartdata1 = BHInstData.objects.filter(CID_No=Rid, Date=date.today())
 		for x in chartdata1:
 			x2.append(str((x.Time).strftime('%H:%M')))
 			y3.append((x.Power)*1000)
 			y4.append(x.LPD)
 
 		try:
-			lv = BHInstData.objects.filter(CID_No=Rid).latest('Date', 'Time', 'Voltage', 'Current', 'LPD')
+			lv = BHInstData.objects.filter(CID_No=Rid, Date=date.today()).latest('Date', 'Time', 'Voltage', 'Current', 'LPD')
 			ldate = lv.Date
 			ltime = lv.Time
 			volt = int(lv.Voltage)
@@ -523,6 +531,9 @@ def search(request):
 			powr = lv.Power
 			lph = int(lv.LPD)
 			runst = lv.RunStatus
+			if h1.eTime<ctVal:
+				lv.RunStatus = False
+				runst = lv.RunStatus
 			if runst==True:
 				runst = 'Running'
 			else:
